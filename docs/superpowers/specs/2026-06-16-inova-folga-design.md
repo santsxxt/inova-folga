@@ -57,34 +57,44 @@ Deixados de fora de propósito pra não inchar. Religar depois se valer:
 - **escala_dia:** `id`, `funcionario_id`, `data`, `turno` (ref. ao catálogo). Uma linha por funcionário/dia — é a célula do Quadro de Horário.
 - **escala_caixa:** `id`, `data`, `posto` (Caixa 1/2/3, Entrega), `horario` (faixa, ex. `06:00-14:30`), `funcionario_id`. É a célula da grade de caixas.
 - **ferias_sugestao:** `id`, `funcionario_id` (ou geral), `mes`, `ano` — a tabela de "sugestão de datas de férias" do topo da foto 1.
+- **feriados:** `data` (PK), `descricao` — quais dias entram na visão de Domingos & Feriados.
 - **solicitacoes:** `id`, `funcionario_id`, `tipo` (`ferias` | `folga` | `troca`), `data_inicio`, `data_fim`, `data_troca_destino` (pra troca de dia), `funcionario_troca_id` (opcional, com quem troca), `observacao`, `status` (`pendente` | `aprovado` | `recusado`), `motivo_resposta`, `created_at`, `respondido_em`. É o pedido do funcionário e a fila de aprovação do Carlos.
 - **notificacoes:** `id`, `destinatario` (ex. `carlos`/patrão), `solicitacao_id`, `texto`, `lida` (bool), `created_at`. Alimenta o sino do PC. (Pode ser derivada de `solicitacoes`; mantida separada pra marcar lida/não-lida.)
 
 ## 7. Telas
 
-### 6.1 Quadro de Horário (PC)
+O lado do patrão tem **4 visões da escala** num menu único: **Geral**, **Caixas**, **Domingos & Feriados** e **Férias**. Geral, Domingos&Feriados e Férias leem a mesma `escala_dia` (são recortes/filtros); Caixas tem dados próprios.
+
+### 7.1 Geral — Quadro de Horário (PC)
 - Grade: linhas = funcionários ativos, colunas = dias. Navegação por período (próx. ~3 semanas, igual a folha).
 - Clicar numa célula abre um seletor de turno → a célula pinta na cor do catálogo.
 - Cabeçalho da coluna mostra o dia + dia da semana (2a, 3a, … SAB, DOM) e destaca fim de semana.
 - Lateral/rodapé: aniversariantes do período e bloco de sugestão de férias por mês.
 
-### 6.2 Escala de Caixas/Entrega (PC)
-- Grade por semana: linhas = posto + faixa de horário; colunas = dias. Célula = nome (dropdown de funcionários).
+### 7.2 Caixas/Entrega (PC)
+- Grade por dia: linhas = posto + faixa de horário; colunas = dias. Célula = nome (dropdown de funcionários).
 - Independente do Quadro de Horário nesta versão.
 
-### 6.3 App do Funcionário (celular)
+### 7.3 Domingos & Feriados (PC)
+- Mesma grade clicável da Geral, mas mostrando **só** as colunas de sábado/domingo e dos feriados cadastrados.
+- Inclui cadastro de feriados (data + descrição) que define quais dias úteis entram aqui.
+
+### 7.4 Férias (PC)
+- Lista cada funcionário com os dias marcados como `ferias` no período (recorte da `escala_dia`). Visão de leitura pra bater o planejamento de férias.
+
+### 7.5 App do Funcionário (celular)
 - Login simples (nome + PIN).
 - Tela inicial enxuta: **próxima folga**, **turno de hoje/amanhã**, **suas férias do mês**.
 - **Botões de pedido:** Agendar férias · Agendar folga · Trocar dia → abre seletor de data(s) e gera a solicitação.
 - **Meus pedidos:** lista com status (pendente / aprovado / recusado + motivo).
 - Botão "ver quadro completo" → versão só-leitura do Quadro de Horário.
 
-### 6.4 Pendências do Carlos (PC)
+### 7.6 Pendências do Carlos (PC)
 - **Sino de notificações** com contador de pedidos não-lidos.
 - Lista de **solicitações pendentes** (quem, tipo, data) com botões **Aprovar** / **Recusar** (motivo opcional).
 - Aprovar grava o turno correspondente na `escala_dia` automaticamente (ex.: férias aprovada → célula vira `ferias`).
 
-### 6.5 Cadastros (PC)
+### 7.7 Cadastros (PC)
 - CRUD de funcionários (nome, cor, aniversário, ativo).
 - Edição da sugestão de férias por mês.
 

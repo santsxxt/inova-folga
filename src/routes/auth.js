@@ -8,7 +8,7 @@ router.get('/login', (req, res) => res.render('login-boss', { erro: null }));
 
 router.post('/login', (req, res) => {
   const { usuario, senha } = req.body;
-  if (String(usuario).trim() === BOSS_USER && String(senha) === BOSS_PASS) {
+  if (String(usuario).trim().toLowerCase() === BOSS_USER.toLowerCase() && String(senha) === BOSS_PASS) {
     req.session.boss = true;
     return res.redirect('/quadro');
   }

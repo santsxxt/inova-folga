@@ -9,9 +9,9 @@ const setor = (nome) => db.prepare('SELECT id FROM setores WHERE nome = ?').get(
 // nome -> setor (ajuste fino depois pelo Cadastros)
 const PESSOAS = [
   ['Izadora', 'Atendente'], ['Ariane Arch', 'Atendente'], ['Micaely', 'Atendente'],
-  ['Leidiane', 'Escritório'], ['Daniel', 'Atendente'], ['Marcelo', 'Atendente'],
-  ['Joaquim', 'Atendente'], ['Deivid', 'Atendente'], ['Vitória', 'Atendente'],
-  ['Gustavo', 'Atendente'], ['Iggor', 'Atendente'], ['Ariane', 'Atendente'],
+  ['Leidiane', 'Escritório'], ['Daniel', 'Atendente'], ['Marcelo', 'Estoque'],
+  ['Joaquim', 'Estoque'], ['Deivid', 'Atendente'], ['Vitória', 'Atendente'],
+  ['Gustavo', 'Atendente'], ['Higor', 'Estoque'], ['Ariane', 'Atendente'],
   ['Felipe', 'Escritório'], ['Sandro', 'Estoque'], ['Maria Olivia', 'Atendente'],
   ['Rogério', 'Estoque'], ['Luis Gustavo', 'Atendente'], ['Filipe Estag', 'Escritório'],
   ['Luiz Fernando', 'Atendente'], ['Nilton', 'Estoque'], ['Nicolas', 'Escritório'],
@@ -25,6 +25,10 @@ const PESSOAS = [
 const existentes = new Set(F.listarTodos(db).map((f) => f.nome));
 let n = 0;
 for (const [nome, s] of PESSOAS) {
-  if (!existentes.has(nome)) { F.criar(db, { nome, setorId: setor(s) }); n++; }
+  if (!existentes.has(nome)) {
+    const id = F.criar(db, { nome, setorId: setor(s) });
+    F.definirPin(db, id, nome); // PIN = o próprio nome (login: Nicolas / Nicolas)
+    n++;
+  }
 }
-console.log(`Seed: ${n} funcionários adicionados.`);
+console.log(`Seed: ${n} funcionários adicionados (PIN = nome).`);

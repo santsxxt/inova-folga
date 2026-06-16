@@ -9,7 +9,6 @@ import { dias, hojeISO } from '../lib/datas.js';
 
 const router = Router();
 const POSTOS = ['Caixa 1', 'Caixa 2', 'Caixa 3', 'Entrega'];
-const HORARIOS = ['06:00-14:30', '08:00-16:30', '14:30-22:00', '16:30-24:00'];
 const agora = () => new Date().toISOString();
 
 // ---- Geral: Quadro de Horário ----
@@ -39,7 +38,8 @@ router.get('/caixas', requireBoss, (req, res) => {
   const mapa = {};
   for (const l of linhas) mapa[`${l.posto}|${l.horario}`] = l.funcionario_id;
   res.render('boss/caixas', {
-    pagina: 'caixas', data, postos: POSTOS, horarios: HORARIOS, mapa,
+    pagina: 'caixas', data, postos: POSTOS,
+    horarios: C.listarHorariosCaixa(req.db), mapa,
     funcionarios: F.listarAtivos(req.db),
   });
 });
@@ -48,6 +48,16 @@ router.post('/caixas', requireBoss, (req, res) => {
   const { data, posto, horario, funcionarioId } = req.body;
   E.definirCaixa(req.db, { data, posto, horario, funcionarioId: funcionarioId ? Number(funcionarioId) : null });
   res.redirect('/caixas?data=' + encodeURIComponent(data));
+});
+
+router.post('/caixas/horario', requireBoss, (req, res) => {
+  if (req.body.horario) C.criarHorarioCaixa(req.db, req.body.horario, Number(req.body.ordem) || 99);
+  res.redirect('/caixas?data=' + encodeURIComponent(req.body.data || ''));
+});
+
+router.post('/caixas/horario/:id/remover', requireBoss, (req, res) => {
+  C.removerHorarioCaixa(req.db, Number(req.params.id));
+  res.redirect('/caixas?data=' + encodeURIComponent(req.body.data || ''));
 });
 
 // ---- Domingos e Feriados ----

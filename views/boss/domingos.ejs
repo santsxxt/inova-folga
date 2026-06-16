@@ -28,7 +28,7 @@
         </tr></thead>
         <tbody>
           <% grupos.forEach(g => { %>
-          <tr><th colspan="<%= colunas.length + 1 %>" style="text-align:left;background:#eef0f4;color:#555"><%= g.setor %></th></tr>
+          <tr class="setor"><th colspan="<%= colunas.length + 1 %>"><%= g.setor %></th></tr>
           <% g.funcionarios.forEach(f => { %>
           <tr><th style="text-align:left"><%= f.nome %></th>
             <% colunas.forEach(d => { const t = mapa[f.id + '|' + d.iso]; %>

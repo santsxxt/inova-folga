@@ -4,12 +4,12 @@
 <body>
   <%- include('../partials/topo') %>
   <main>
-    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
-      <h2 style="margin:0;font-size:18px">Quadro de Horário</h2>
-      <form method="get" style="display:flex;gap:6px;align-items:center">
-        <label>Início <input type="date" name="inicio" value="<%= inicio %>" onchange="this.form.submit()"></label>
-      </form>
-      <span style="color:#6b7280;font-size:13px">Clique numa célula pra definir o turno</span>
+    <div class="barra">
+      <h2>Quadro de Horário</h2>
+      <% const _m = new Date(dias[0].iso + 'T00:00:00Z'); const _mes = _m.toLocaleDateString('pt-BR',{month:'long',year:'numeric',timeZone:'UTC'}); %>
+      <span class="mes-tag"><%= _mes %></span>
+      <form method="get"><label>Início <input type="date" name="inicio" value="<%= inicio %>" onchange="this.form.submit()"></label></form>
+      <span class="dica">Clique numa célula pra definir o turno</span>
     </div>
     <div class="grid-wrap">
       <table class="quadro">
@@ -18,7 +18,7 @@
         </tr></thead>
         <tbody>
           <% grupos.forEach(g => { %>
-          <tr><th colspan="<%= dias.length + 1 %>" style="text-align:left;background:#eef0f4;color:#555"><%= g.setor %></th></tr>
+          <tr class="setor"><th colspan="<%= dias.length + 1 %>"><%= g.setor %></th></tr>
           <% g.funcionarios.forEach(f => { %>
           <tr><th style="text-align:left"><%= f.nome %></th>
             <% dias.forEach(d => { const t = mapa[f.id + '|' + d.iso]; %>

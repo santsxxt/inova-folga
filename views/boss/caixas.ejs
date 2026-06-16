@@ -4,27 +4,48 @@
 <body>
   <%- include('../partials/topo') %>
   <main>
-    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
-      <h2 style="margin:0;font-size:18px">Caixas / Entrega</h2>
+    <div class="barra">
+      <h2>Caixas / Entrega</h2>
       <form method="get"><input type="date" name="data" value="<%= data %>" onchange="this.form.submit()"></form>
     </div>
-    <table class="tabela" style="max-width:720px">
-      <thead><tr><th>Posto</th><th>Horário</th><th>Funcionário</th></tr></thead>
+
+    <div class="grid-wrap" style="max-width:860px">
+    <table class="tabela">
+      <thead><tr><th>Posto</th>
+        <% horarios.forEach(h => { %>
+          <th>
+            <%= h.horario %>
+            <form method="post" action="/caixas/horario/<%= h.id %>/remover" style="display:inline;margin:0">
+              <input type="hidden" name="data" value="<%= data %>">
+              <button class="x" title="remover horário">×</button>
+            </form>
+          </th>
+        <% }) %>
+      </tr></thead>
       <tbody>
-        <% postos.forEach(p => horarios.forEach(h => { const sel = mapa[p + '|' + h]; %>
-        <tr><td><%= p %></td><td><%= h %></td>
-          <td><form method="post" action="/caixas" style="display:flex;gap:6px;margin:0">
+        <% postos.forEach(p => { %>
+        <tr><td><strong><%= p %></strong></td>
+          <% horarios.forEach(h => { const sel = mapa[p + '|' + h.horario]; %>
+          <td><form method="post" action="/caixas" style="margin:0">
             <input type="hidden" name="data" value="<%= data %>">
             <input type="hidden" name="posto" value="<%= p %>">
-            <input type="hidden" name="horario" value="<%= h %>">
+            <input type="hidden" name="horario" value="<%= h.horario %>">
             <select name="funcionarioId" onchange="this.form.submit()">
               <option value="">—</option>
               <% funcionarios.forEach(f => { %><option value="<%= f.id %>" <%= sel == f.id ? 'selected' : '' %>><%= f.nome %></option><% }) %>
             </select>
           </form></td>
+          <% }) %>
         </tr>
-        <% })) %>
+        <% }) %>
       </tbody>
     </table>
+    </div>
+
+    <form method="post" action="/caixas/horario" class="card" style="width:auto;max-width:420px;margin-top:14px;grid-template-columns:1fr auto;align-items:end">
+      <input type="hidden" name="data" value="<%= data %>">
+      <label>Novo horário<br><input name="horario" placeholder="06:00-14:30" required></label>
+      <button>Adicionar horário</button>
+    </form>
   </main>
 </body></html>

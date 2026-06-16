@@ -18,6 +18,18 @@ export function removerSetor(db, id) {
   db.prepare('DELETE FROM setores WHERE id = ?').run(id);
 }
 
+export function listarHorariosCaixa(db) {
+  return db.prepare('SELECT id, horario, ordem FROM horarios_caixa ORDER BY ordem, horario').all();
+}
+
+export function criarHorarioCaixa(db, horario, ordem = 99) {
+  db.prepare('INSERT OR IGNORE INTO horarios_caixa (horario, ordem) VALUES (?,?)').run(horario.trim(), ordem);
+}
+
+export function removerHorarioCaixa(db, id) {
+  db.prepare('DELETE FROM horarios_caixa WHERE id = ?').run(id);
+}
+
 export function listarTurnos(db) {
   return db.prepare('SELECT codigo, rotulo, cor, inicio, fim FROM turnos').all();
 }

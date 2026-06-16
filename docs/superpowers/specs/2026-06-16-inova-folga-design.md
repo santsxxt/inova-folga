@@ -40,7 +40,7 @@ Deixados de fora de propósito pra não inchar. Religar depois se valer:
 - **Backend:** Node + Express (ESM), igual aos outros sistemas Inova.
 - **Banco:** SQLite (escala interna, ~36 pessoas — não precisa de Postgres).
 - **Front:** EJS/HTML mobile-first pro funcionário; grade larga pro PC.
-- **Deploy:** GitHub → VPS (auto-deploy, padrão Inova). Subdomínio `inovafolga.inovadrogaria.com.br`.
+- **Deploy:** GitHub → VPS (auto-deploy por polling git ~2min, padrão Inova: pm2 + nginx). Subdomínio **`tabelafolga.inovadrogaria.com.br`**.
 - **Pasta do projeto:** `C:\Users\PC\Desktop\inova folga`.
 
 ## 6. Modelo de Dados (SQLite)

@@ -1730,6 +1730,58 @@ git commit -m "feat: visão de férias por funcionário e menu entre as escalas"
 
 ---
 
+## Task 14: Deploy no VPS (tabelafolga.inovadrogaria.com.br)
+
+Mesmo padrão dos outros sistemas Inova (INOVAZAP/InovaPED/InovaExpress): repo no GitHub, VPS `162.141.109.187` faz auto-deploy por polling do git, roda em pm2, nginx faz o proxy do subdomínio com HTTPS. **Depende do subdomínio `tabelafolga.inovadrogaria.com.br` já apontando pro VPS** (Nicolas cria o DNS).
+
+**Files:**
+- Create: `ecosystem.config.cjs` (pm2), `deploy/nginx-tabelafolga.conf` (referência)
+
+- [ ] **Step 1: pm2 config** — `ecosystem.config.cjs`
+
+```js
+module.exports = {
+  apps: [{
+    name: 'inova-folga',
+    script: 'server.js',
+    env: { PORT: 3900, NODE_ENV: 'production' },
+    autorestart: true,
+  }],
+};
+```
+
+- [ ] **Step 2: nginx de referência** — `deploy/nginx-tabelafolga.conf`
+
+```nginx
+server {
+  server_name tabelafolga.inovadrogaria.com.br;
+  location / {
+    proxy_pass http://127.0.0.1:3900;
+    proxy_set_header Host $host;
+    proxy_set_header X-Real-IP $remote_addr;
+    proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;
+    proxy_set_header X-Forwarded-Proto $scheme;
+  }
+}
+```
+
+- [ ] **Step 3: Criar repositório e primeiro push** (após Nicolas confirmar o remote)
+
+```bash
+git add ecosystem.config.cjs deploy/nginx-tabelafolga.conf
+git commit -m "chore: configs de deploy (pm2 + nginx) inova-folga"
+# git remote add origin <URL do repo>  &&  git push -u origin main
+```
+
+- [ ] **Step 4: No VPS** (uma vez): clonar o repo no diretório de deploy, `npm install --omit=dev`, `pm2 start ecosystem.config.cjs`, `pm2 save`. Copiar o nginx, `certbot --nginx -d tabelafolga.inovadrogaria.com.br`, `nginx -t && systemctl reload nginx`. Definir `BOSS_PASS` real via env do pm2.
+
+- [ ] **Step 5: Verificar produção**
+
+Run: abrir `https://tabelafolga.inovadrogaria.com.br/health`
+Expected: `{"ok":true}` por HTTPS; `/login` carrega.
+
+---
+
 ## Self-Review — cobertura do spec
 
 - **Quadro de Horário (PC)** → Task 8. ✅

@@ -1,0 +1,29 @@
+<!doctype html><html lang="pt-br"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minha Escala</title><link rel="stylesheet" href="/css/app.css"></head>
+<body>
+  <div class="appbar">
+    <strong>Oi, <%= nome %></strong>
+    <a href="/app/logout">Sair</a>
+  </div>
+  <main class="col">
+    <div class="card tile" style="width:auto;<%= hojeTurno ? 'border-left:6px solid ' + (corPorTurno[hojeTurno.turno] || '#ccc') : '' %>">
+      <small>Hoje (<%= hoje %>)</small>
+      <strong><%= hojeTurno ? rotuloTurno[hojeTurno.turno] : 'Sem turno marcado' %></strong>
+    </div>
+    <div class="card tile" style="width:auto">
+      <small>Próxima folga</small>
+      <strong><%= proximaFolga ? proximaFolga.data : '—' %></strong>
+    </div>
+    <div class="card tile" style="width:auto">
+      <small>Próximas férias</small>
+      <strong><%= proximasFerias ? proximasFerias.data : '—' %></strong>
+    </div>
+    <div class="acoes">
+      <a style="background:#ffd84d" href="/app/pedido?tipo=ferias">Agendar<br>férias</a>
+      <a style="background:#86d191" href="/app/pedido?tipo=folga">Agendar<br>folga</a>
+      <a style="background:#7fb3ff" href="/app/pedido?tipo=troca">Trocar<br>dia</a>
+    </div>
+    <a href="/app/meus-pedidos" style="text-align:center;font-weight:700">Meus pedidos →</a>
+  </main>
+</body></html>

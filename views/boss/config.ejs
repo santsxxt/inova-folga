@@ -1,0 +1,64 @@
+<!doctype html><html lang="pt-br"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Configurações</title><link rel="stylesheet" href="/css/app.css"></head>
+<body>
+  <%- include('../partials/topo') %>
+  <main style="display:grid;gap:24px;max-width:820px">
+    <section>
+      <h2 style="margin:0 0 10px;font-size:18px">Setores</h2>
+      <table class="tabela" style="margin-bottom:10px">
+        <thead><tr><th>Nome</th><th>Ordem</th><th></th></tr></thead>
+        <tbody>
+          <% setores.forEach(s => { %>
+          <tr>
+            <td><form method="post" action="/config/setor" id="s<%= s.id %>" style="margin:0">
+              <input type="hidden" name="id" value="<%= s.id %>">
+              <input name="nome" value="<%= s.nome %>"></td>
+            <td><input name="ordem" value="<%= s.ordem %>" style="width:60px" form="s<%= s.id %>"></td>
+            <td style="display:flex;gap:6px">
+              <button form="s<%= s.id %>">Salvar</button></form>
+              <form method="post" action="/config/setor/<%= s.id %>/remover" style="margin:0"><button class="cinza">Remover</button></form>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      <form method="post" action="/config/setor" class="card" style="width:auto;max-width:420px;grid-template-columns:1fr auto auto;align-items:end">
+        <input name="nome" placeholder="Novo setor" required>
+        <input name="ordem" placeholder="ordem" style="width:70px">
+        <button>Adicionar</button>
+      </form>
+    </section>
+
+    <section>
+      <h2 style="margin:0 0 10px;font-size:18px">Turnos (rótulo, cor e horário — tudo editável)</h2>
+      <table class="tabela" style="margin-bottom:10px">
+        <thead><tr><th>Código</th><th>Rótulo</th><th>Cor</th><th>Início</th><th>Fim</th><th></th></tr></thead>
+        <tbody>
+          <% turnos.forEach(t => { %>
+          <tr>
+            <td><form method="post" action="/config/turno" id="t<%= t.codigo %>" style="margin:0">
+              <input type="hidden" name="codigo" value="<%= t.codigo %>"><%= t.codigo %></td>
+            <td><input name="rotulo" value="<%= t.rotulo %>" form="t<%= t.codigo %>"></td>
+            <td><input type="color" name="cor" value="<%= t.cor %>" form="t<%= t.codigo %>"></td>
+            <td><input name="inicio" value="<%= t.inicio || '' %>" placeholder="06:00" style="width:64px" form="t<%= t.codigo %>"></td>
+            <td><input name="fim" value="<%= t.fim || '' %>" placeholder="14:30" style="width:64px" form="t<%= t.codigo %>"></td>
+            <td style="display:flex;gap:6px">
+              <button form="t<%= t.codigo %>">Salvar</button></form>
+              <form method="post" action="/config/turno/<%= t.codigo %>/remover" style="margin:0"><button class="cinza">Remover</button></form>
+            </td>
+          </tr>
+          <% }) %>
+        </tbody>
+      </table>
+      <form method="post" action="/config/turno" class="card" style="width:auto;max-width:640px;grid-template-columns:repeat(5,auto) auto;align-items:end">
+        <label>Código<br><input name="codigo" placeholder="ex tarde2" required></label>
+        <label>Rótulo<br><input name="rotulo" required></label>
+        <label>Cor<br><input type="color" name="cor" value="#dddddd"></label>
+        <label>Início<br><input name="inicio" placeholder="06:00" style="width:64px"></label>
+        <label>Fim<br><input name="fim" placeholder="14:30" style="width:64px"></label>
+        <button>Adicionar turno</button>
+      </form>
+    </section>
+  </main>
+</body></html>

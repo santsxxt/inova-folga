@@ -44,19 +44,19 @@ inova folga/
     funcionarios.test.js  escala.test.js  solicitacoes.test.js  auth.test.js
 ```
 
-Catálogo de turnos (constante usada em todo lugar), definido em `src/db.js`:
+Catálogo de turnos (seed inicial — a tabela é **editável** pelo patrão depois). A operação é **06:00–00:00**, então os horários default cobrem essa faixa. Definido em `src/db.js`:
 
 ```js
 export const TURNOS = [
-  { codigo: 'manha',     rotulo: 'Manhã',           cor: '#f6a5c0' },
-  { codigo: 'tarde',     rotulo: 'Tarde (13:30)',   cor: '#7fb3ff' },
-  { codigo: 'noite22',   rotulo: 'Noite até 22h',   cor: '#b9a5e3' },
-  { codigo: 'noite23',   rotulo: 'Noite até 23h',   cor: '#a48fd6' },
-  { codigo: 'noite24',   rotulo: 'Noite até 24h',   cor: '#8f78c9' },
-  { codigo: 'folga',     rotulo: 'Folga da semana', cor: '#86d191' },
-  { codigo: 'ferias',    rotulo: 'Férias',          cor: '#ffd84d' },
-  { codigo: 'falta',     rotulo: 'Falta',           cor: '#e3554a' },
-  { codigo: 'especial4', rotulo: 'Meio período (4)',cor: '#cdcdcd' },
+  { codigo: 'manha',     rotulo: 'Manhã',           cor: '#f6a5c0', inicio: '06:00', fim: '14:30' },
+  { codigo: 'tarde',     rotulo: 'Tarde',           cor: '#7fb3ff', inicio: '13:30', fim: '22:00' },
+  { codigo: 'noite22',   rotulo: 'Noite até 22h',   cor: '#b9a5e3', inicio: '14:30', fim: '22:00' },
+  { codigo: 'noite23',   rotulo: 'Noite até 23h',   cor: '#a48fd6', inicio: '15:00', fim: '23:00' },
+  { codigo: 'noite24',   rotulo: 'Noite até 00h',   cor: '#8f78c9', inicio: '16:30', fim: '00:00' },
+  { codigo: 'folga',     rotulo: 'Folga da semana', cor: '#86d191', inicio: null,    fim: null },
+  { codigo: 'ferias',    rotulo: 'Férias',          cor: '#ffd84d', inicio: null,    fim: null },
+  { codigo: 'falta',     rotulo: 'Falta',           cor: '#e3554a', inicio: null,    fim: null },
+  { codigo: 'especial4', rotulo: 'Meio período (4)',cor: '#cdcdcd', inicio: '06:00', fim: '13:00' },
 ];
 ```
 
@@ -138,7 +138,7 @@ test('openDb cria tabelas e popula o catálogo de turnos', () => {
   const tabelas = db.prepare(
     "SELECT name FROM sqlite_master WHERE type='table'"
   ).all().map(r => r.name);
-  for (const t of ['funcionarios','turnos','escala_dia','escala_caixa','ferias_sugestao','feriados','solicitacoes','notificacoes']) {
+  for (const t of ['setores','funcionarios','turnos','escala_dia','escala_caixa','ferias_sugestao','feriados','solicitacoes','notificacoes']) {
     assert.ok(tabelas.includes(t), `faltou tabela ${t}`);
   }
   const n = db.prepare('SELECT COUNT(*) c FROM turnos').get().c;
@@ -158,22 +158,30 @@ import Database from 'better-sqlite3';
 import { mkdirSync } from 'node:fs';
 import { dirname } from 'node:path';
 
+export const SETORES = ['Escritório', 'Caixa', 'Atendente', 'Estoque', 'Entrega'];
+
 export const TURNOS = [
-  { codigo: 'manha',     rotulo: 'Manhã',            cor: '#f6a5c0' },
-  { codigo: 'tarde',     rotulo: 'Tarde (13:30)',    cor: '#7fb3ff' },
-  { codigo: 'noite22',   rotulo: 'Noite até 22h',    cor: '#b9a5e3' },
-  { codigo: 'noite23',   rotulo: 'Noite até 23h',    cor: '#a48fd6' },
-  { codigo: 'noite24',   rotulo: 'Noite até 24h',    cor: '#8f78c9' },
-  { codigo: 'folga',     rotulo: 'Folga da semana',  cor: '#86d191' },
-  { codigo: 'ferias',    rotulo: 'Férias',           cor: '#ffd84d' },
-  { codigo: 'falta',     rotulo: 'Falta',            cor: '#e3554a' },
-  { codigo: 'especial4', rotulo: 'Meio período (4)', cor: '#cdcdcd' },
+  { codigo: 'manha',     rotulo: 'Manhã',            cor: '#f6a5c0', inicio: '06:00', fim: '14:30' },
+  { codigo: 'tarde',     rotulo: 'Tarde',            cor: '#7fb3ff', inicio: '13:30', fim: '22:00' },
+  { codigo: 'noite22',   rotulo: 'Noite até 22h',    cor: '#b9a5e3', inicio: '14:30', fim: '22:00' },
+  { codigo: 'noite23',   rotulo: 'Noite até 23h',    cor: '#a48fd6', inicio: '15:00', fim: '23:00' },
+  { codigo: 'noite24',   rotulo: 'Noite até 00h',    cor: '#8f78c9', inicio: '16:30', fim: '00:00' },
+  { codigo: 'folga',     rotulo: 'Folga da semana',  cor: '#86d191', inicio: null,    fim: null },
+  { codigo: 'ferias',    rotulo: 'Férias',           cor: '#ffd84d', inicio: null,    fim: null },
+  { codigo: 'falta',     rotulo: 'Falta',            cor: '#e3554a', inicio: null,    fim: null },
+  { codigo: 'especial4', rotulo: 'Meio período (4)', cor: '#cdcdcd', inicio: '06:00', fim: '13:00' },
 ];
 
 const SCHEMA = `
+CREATE TABLE IF NOT EXISTS setores (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  nome TEXT NOT NULL UNIQUE,   -- 'Escritório','Caixa','Atendente','Estoque','Entrega'...
+  ordem INTEGER NOT NULL DEFAULT 0
+);
 CREATE TABLE IF NOT EXISTS funcionarios (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   nome TEXT NOT NULL,
+  setor_id INTEGER REFERENCES setores(id),
   cor TEXT,
   aniversario TEXT,            -- 'DD/MM'
   pin TEXT,                    -- hash scrypt do PIN
@@ -182,7 +190,9 @@ CREATE TABLE IF NOT EXISTS funcionarios (
 CREATE TABLE IF NOT EXISTS turnos (
   codigo TEXT PRIMARY KEY,
   rotulo TEXT NOT NULL,
-  cor TEXT NOT NULL
+  cor TEXT NOT NULL,
+  inicio TEXT,                 -- 'HH:MM' (null p/ folga/férias/falta)
+  fim TEXT
 );
 CREATE TABLE IF NOT EXISTS escala_dia (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -239,11 +249,13 @@ export function openDb(path) {
   db.pragma('journal_mode = WAL');
   db.pragma('foreign_keys = ON');
   db.exec(SCHEMA);
-  const insert = db.prepare(
-    'INSERT OR IGNORE INTO turnos (codigo, rotulo, cor) VALUES (?,?,?)'
+  const insertTurno = db.prepare(
+    'INSERT OR IGNORE INTO turnos (codigo, rotulo, cor, inicio, fim) VALUES (?,?,?,?,?)'
   );
+  const insertSetor = db.prepare('INSERT OR IGNORE INTO setores (nome, ordem) VALUES (?,?)');
   const seed = db.transaction(() => {
-    for (const t of TURNOS) insert.run(t.codigo, t.rotulo, t.cor);
+    for (const t of TURNOS) insertTurno.run(t.codigo, t.rotulo, t.cor, t.inicio, t.fim);
+    SETORES.forEach((nome, i) => insertSetor.run(nome, i));
   });
   seed();
   return db;
@@ -346,21 +358,43 @@ import assert from 'node:assert/strict';
 import { openDb } from '../src/db.js';
 import * as F from '../src/repo/funcionarios.js';
 
-test('criar, listar ativos, definir pin e autenticar', () => {
+function setorId(db, nome) {
+  return db.prepare('SELECT id FROM setores WHERE nome = ?').get(nome).id;
+}
+
+test('criar, editar, listar ativos, definir pin e autenticar', () => {
   const db = openDb(':memory:');
-  const id = F.criar(db, { nome: 'Larissa', cor: '#7fb3ff', aniversario: '10/04' });
+  const caixa = setorId(db, 'Caixa');
+  const id = F.criar(db, { nome: 'Larissa', setorId: caixa, cor: '#7fb3ff', aniversario: '10/04' });
   assert.ok(id > 0);
 
   const ativos = F.listarAtivos(db);
   assert.equal(ativos.length, 1);
   assert.equal(ativos[0].nome, 'Larissa');
+  assert.equal(ativos[0].setor, 'Caixa');
+
+  // edita nome, cor e setor
+  F.editar(db, id, { nome: 'Larissa M.', setorId: setorId(db, 'Atendente'), cor: '#86d191', aniversario: '11/04' });
+  assert.equal(F.buscar(db, id).nome, 'Larissa M.');
+  assert.equal(F.buscar(db, id).setor, 'Atendente');
 
   F.definirPin(db, id, '1234');
-  assert.equal(F.autenticar(db, 'Larissa', '1234')?.id, id);
-  assert.equal(F.autenticar(db, 'Larissa', '0000'), null);
+  assert.equal(F.autenticar(db, 'Larissa M.', '1234')?.id, id);
+  assert.equal(F.autenticar(db, 'Larissa M.', '0000'), null);
 
   F.desativar(db, id);
   assert.equal(F.listarAtivos(db).length, 0);
+});
+
+test('listarPorSetor agrupa os ativos na ordem dos setores', () => {
+  const db = openDb(':memory:');
+  F.criar(db, { nome: 'Bia', setorId: setorId(db, 'Atendente') });
+  F.criar(db, { nome: 'Ana', setorId: setorId(db, 'Caixa') });
+  const grupos = F.listarPorSetor(db);
+  // 'Caixa' (ordem 1) vem antes de 'Atendente' (ordem 2)
+  assert.equal(grupos[0].setor, 'Caixa');
+  assert.equal(grupos[0].funcionarios[0].nome, 'Ana');
+  assert.equal(grupos[1].setor, 'Atendente');
 });
 ```
 
@@ -374,25 +408,49 @@ Expected: FAIL — módulo inexistente.
 ```js
 import { hashSecret, verifySecret } from '../auth.js';
 
-export function criar(db, { nome, cor = null, aniversario = null }) {
+const SELECT_BASE = `
+  SELECT f.id, f.nome, f.setor_id, s.nome AS setor, s.ordem AS setor_ordem,
+         f.cor, f.aniversario, f.ativo
+  FROM funcionarios f LEFT JOIN setores s ON s.id = f.setor_id
+`;
+
+export function criar(db, { nome, setorId = null, cor = null, aniversario = null }) {
   const info = db.prepare(
-    'INSERT INTO funcionarios (nome, cor, aniversario) VALUES (?,?,?)'
-  ).run(nome.trim(), cor, aniversario);
+    'INSERT INTO funcionarios (nome, setor_id, cor, aniversario) VALUES (?,?,?,?)'
+  ).run(nome.trim(), setorId, cor, aniversario);
   return info.lastInsertRowid;
+}
+
+export function editar(db, id, { nome, setorId = null, cor = null, aniversario = null }) {
+  db.prepare(
+    'UPDATE funcionarios SET nome = ?, setor_id = ?, cor = ?, aniversario = ? WHERE id = ?'
+  ).run(nome.trim(), setorId, cor, aniversario, id);
 }
 
 export function listarAtivos(db) {
   return db.prepare(
-    'SELECT id, nome, cor, aniversario FROM funcionarios WHERE ativo = 1 ORDER BY nome'
+    SELECT_BASE + ' WHERE f.ativo = 1 ORDER BY s.ordem, f.nome'
   ).all();
 }
 
+// Agrupa os ativos por setor, na ordem dos setores. [{ setor, funcionarios: [...] }]
+export function listarPorSetor(db) {
+  const grupos = [];
+  for (const f of listarAtivos(db)) {
+    const nomeSetor = f.setor || 'Sem setor';
+    let g = grupos.find(x => x.setor === nomeSetor);
+    if (!g) { g = { setor: nomeSetor, funcionarios: [] }; grupos.push(g); }
+    g.funcionarios.push(f);
+  }
+  return grupos;
+}
+
 export function listarTodos(db) {
-  return db.prepare('SELECT id, nome, cor, aniversario, ativo FROM funcionarios ORDER BY nome').all();
+  return db.prepare(SELECT_BASE + ' ORDER BY s.ordem, f.nome').all();
 }
 
 export function buscar(db, id) {
-  return db.prepare('SELECT id, nome, cor, aniversario, ativo FROM funcionarios WHERE id = ?').get(id);
+  return db.prepare(SELECT_BASE + ' WHERE f.id = ?').get(id);
 }
 
 export function definirPin(db, id, pin) {
@@ -984,18 +1042,26 @@ import * as E from '../repo/escala.js';
 import { dias } from '../lib/datas.js';
 
 const router = Router();
-const corPorTurno = Object.fromEntries(TURNOS.map(t => [t.codigo, t.cor]));
+
+// Turnos vêm do banco (são editáveis), não da constante estática.
+export function carregarTurnos(db) {
+  const turnos = db.prepare('SELECT codigo, rotulo, cor, inicio, fim FROM turnos').all();
+  const corPorTurno = Object.fromEntries(turnos.map(t => [t.codigo, t.cor]));
+  return { turnos, corPorTurno };
+}
 
 router.get('/quadro', requireBoss, (req, res) => {
   const inicio = req.query.inicio || hojeISO();
   const periodoDias = dias(inicio, 21);
-  const funcionarios = F.listarAtivos(req.db);
+  const grupos = F.listarPorSetor(req.db);
   const mapa = E.periodo(req.db, periodoDias[0].iso, periodoDias.at(-1).iso);
-  res.render('boss/quadro', { funcionarios, dias: periodoDias, mapa, turnos: TURNOS, corPorTurno, inicio });
+  const { turnos, corPorTurno } = carregarTurnos(req.db);
+  res.render('boss/quadro', { grupos, dias: periodoDias, mapa, turnos, corPorTurno, inicio });
 });
 
 router.post('/quadro/celula', requireBoss, (req, res) => {
   const { funcionarioId, data, turno } = req.body;
+  const { corPorTurno } = carregarTurnos(req.db);
   if (turno === '') E.limparCelula(req.db, Number(funcionarioId), data);
   else E.definirCelula(req.db, Number(funcionarioId), data, turno);
   res.json({ ok: true, cor: corPorTurno[turno] || '' });
@@ -1028,13 +1094,16 @@ export default router;
           <% dias.forEach(d => { %><th class="<%= d.fimDeSemana ? 'fds' : '' %>"><%= d.dia %><br><small><%= d.semana %></small></th><% }) %>
         </tr></thead>
         <tbody>
-          <% funcionarios.forEach(f => { %>
+          <% grupos.forEach(g => { %>
+          <tr class="setor-row"><th colspan="<%= dias.length + 1 %>" style="text-align:left;background:#eef0f4;color:#555"><%= g.setor %></th></tr>
+          <% g.funcionarios.forEach(f => { %>
           <tr><th style="text-align:left"><%= f.nome %></th>
             <% dias.forEach(d => { const t = mapa[f.id + '|' + d.iso]; %>
               <td class="cel" data-func="<%= f.id %>" data-data="<%= d.iso %>"
-                  style="background:<%= t ? corPorTurno[t] : '' %>"><%= t ? '' : '' %></td>
+                  style="background:<%= t ? corPorTurno[t] : '' %>"></td>
             <% }) %>
           </tr>
+          <% }) %>
           <% }) %>
         </tbody>
       </table>

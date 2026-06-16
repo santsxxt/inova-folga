@@ -1,0 +1,30 @@
+<!doctype html><html lang="pt-br"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Escala de Caixas</title><link rel="stylesheet" href="/css/app.css"></head>
+<body>
+  <%- include('../partials/topo') %>
+  <main>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+      <h2 style="margin:0;font-size:18px">Caixas / Entrega</h2>
+      <form method="get"><input type="date" name="data" value="<%= data %>" onchange="this.form.submit()"></form>
+    </div>
+    <table class="tabela" style="max-width:720px">
+      <thead><tr><th>Posto</th><th>Horário</th><th>Funcionário</th></tr></thead>
+      <tbody>
+        <% postos.forEach(p => horarios.forEach(h => { const sel = mapa[p + '|' + h]; %>
+        <tr><td><%= p %></td><td><%= h %></td>
+          <td><form method="post" action="/caixas" style="display:flex;gap:6px;margin:0">
+            <input type="hidden" name="data" value="<%= data %>">
+            <input type="hidden" name="posto" value="<%= p %>">
+            <input type="hidden" name="horario" value="<%= h %>">
+            <select name="funcionarioId" onchange="this.form.submit()">
+              <option value="">—</option>
+              <% funcionarios.forEach(f => { %><option value="<%= f.id %>" <%= sel == f.id ? 'selected' : '' %>><%= f.nome %></option><% }) %>
+            </select>
+          </form></td>
+        </tr>
+        <% })) %>
+      </tbody>
+    </table>
+  </main>
+</body></html>

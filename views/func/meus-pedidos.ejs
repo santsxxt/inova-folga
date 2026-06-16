@@ -1,0 +1,17 @@
+<!doctype html><html lang="pt-br"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Meus pedidos</title><link rel="stylesheet" href="/css/app.css"></head>
+<body>
+  <main class="col">
+    <a href="/app">← Voltar</a>
+    <h2 style="margin:0">Meus pedidos</h2>
+    <% if (pedidos.length === 0) { %><p>Você ainda não fez pedidos.</p><% } %>
+    <% pedidos.forEach(p => { const cor = p.status==='aprovado'?'#86d191':p.status==='recusado'?'#e3554a':'#ffd84d'; %>
+      <div class="card" style="width:auto">
+        <strong><%= p.tipo %></strong> — <%= p.data_inicio %><%= p.data_fim ? ' a ' + p.data_fim : '' %>
+        <div><span class="badge" style="background:<%= cor %>;color:#1d1f24"><%= p.status %></span></div>
+        <% if (p.motivo_resposta) { %><div><em><%= p.motivo_resposta %></em></div><% } %>
+      </div>
+    <% }) %>
+  </main>
+</body></html>

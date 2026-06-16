@@ -1,0 +1,21 @@
+<!doctype html><html lang="pt-br"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Férias</title><link rel="stylesheet" href="/css/app.css"></head>
+<body>
+  <%- include('../partials/topo') %>
+  <main>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px">
+      <h2 style="margin:0;font-size:18px">Férias</h2>
+      <form method="get"><input type="number" name="ano" value="<%= ano %>" style="width:100px" onchange="this.form.submit()"></form>
+    </div>
+    <table class="tabela" style="max-width:680px">
+      <thead><tr><th>Funcionário</th><th>Dias de férias</th></tr></thead>
+      <tbody>
+        <% if (lista.length === 0) { %><tr><td colspan="2" style="padding:14px">Ninguém com férias marcadas em <%= ano %>.</td></tr><% } %>
+        <% lista.forEach(x => { %>
+        <tr><td><%= x.nome %></td><td><%= x.dias.join(', ') %></td></tr>
+        <% }) %>
+      </tbody>
+    </table>
+  </main>
+</body></html>

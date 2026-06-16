@@ -1,0 +1,47 @@
+<!doctype html><html lang="pt-br"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Domingos e Feriados</title><link rel="stylesheet" href="/css/app.css"></head>
+<body>
+  <%- include('../partials/topo') %>
+  <main>
+    <h2 style="margin:0 0 12px;font-size:18px">Domingos e Feriados</h2>
+    <form method="post" action="/feriados" class="card" style="width:auto;max-width:520px;margin-bottom:14px;grid-template-columns:auto 1fr auto;align-items:end">
+      <label>Feriado <input type="date" name="data" required></label>
+      <input name="descricao" placeholder="Descrição (opcional)">
+      <button>Adicionar</button>
+    </form>
+    <% if (feriados.length) { %>
+      <div style="margin-bottom:12px;display:flex;gap:8px;flex-wrap:wrap">
+        <% feriados.forEach(fr => { %>
+          <form method="post" action="/feriados/remover" style="margin:0">
+            <input type="hidden" name="data" value="<%= fr.data %>">
+            <span class="badge" style="background:#ffe08a"><%= fr.data %><%= fr.descricao ? ' · ' + fr.descricao : '' %>
+              <button style="background:none;color:#c8102e;border:0;padding:0 0 0 6px;font-weight:700;cursor:pointer">×</button></span>
+          </form>
+        <% }) %>
+      </div>
+    <% } %>
+    <div class="grid-wrap">
+      <table class="quadro">
+        <thead><tr><th style="text-align:left">Funcionário</th>
+          <% colunas.forEach(d => { %><th style="<%= d.feriado ? 'background:#ffe08a' : '' %>"><%= d.dia %><br><small><%= d.feriado ? 'FER' : d.semana %></small></th><% }) %>
+        </tr></thead>
+        <tbody>
+          <% grupos.forEach(g => { %>
+          <tr><th colspan="<%= colunas.length + 1 %>" style="text-align:left;background:#eef0f4;color:#555"><%= g.setor %></th></tr>
+          <% g.funcionarios.forEach(f => { %>
+          <tr><th style="text-align:left"><%= f.nome %></th>
+            <% colunas.forEach(d => { const t = mapa[f.id + '|' + d.iso]; %>
+              <td class="cel" data-func="<%= f.id %>" data-data="<%= d.iso %>" title="<%= t || '' %>"
+                  style="background:<%= t ? corPorTurno[t] : '' %>"></td>
+            <% }) %>
+          </tr>
+          <% }) %>
+          <% }) %>
+        </tbody>
+      </table>
+    </div>
+  </main>
+  <script>window.TURNOS = <%- JSON.stringify(turnos) %>;</script>
+  <script src="/js/quadro.js"></script>
+</body></html>

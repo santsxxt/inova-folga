@@ -1,0 +1,13 @@
+<!doctype html><html lang="pt-br"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Inova Folga — Patrão</title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="login">
+  <form method="post" action="/login" class="card">
+    <h1>Inova Folga</h1>
+    <% if (erro) { %><p class="erro"><%= erro %></p><% } %>
+    <input name="usuario" placeholder="Usuário" autofocus required>
+    <input name="senha" type="password" placeholder="Senha" required>
+    <button>Entrar</button>
+    <a href="/app/login" class="link">Sou funcionário</a>
+  </form>
+</body></html>

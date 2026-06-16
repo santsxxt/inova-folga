@@ -1,0 +1,26 @@
+<!doctype html><html lang="pt-br"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Pendências</title><link rel="stylesheet" href="/css/app.css"></head>
+<body>
+  <%- include('../partials/topo') %>
+  <main>
+    <h2 style="margin:0 0 12px;font-size:18px">Pedidos pendentes</h2>
+    <div style="display:grid;gap:12px;max-width:640px">
+      <% if (pend.length === 0) { %><p>Nenhum pedido pendente. 🎉</p><% } %>
+      <% pend.forEach(s => { %>
+        <div class="card" style="width:auto">
+          <strong><%= s.nome %></strong> — <%= s.tipo %>
+          <div><%= s.data_inicio %><%= s.data_fim ? ' a ' + s.data_fim : '' %></div>
+          <% if (s.observacao) { %><div><em><%= s.observacao %></em></div><% } %>
+          <div style="display:flex;gap:8px;flex-wrap:wrap">
+            <form method="post" action="/pendencias/<%= s.id %>/aprovar" style="margin:0"><button>Aprovar</button></form>
+            <form method="post" action="/pendencias/<%= s.id %>/recusar" style="display:flex;gap:6px;margin:0">
+              <input name="motivo" placeholder="motivo (opcional)">
+              <button class="cinza">Recusar</button>
+            </form>
+          </div>
+        </div>
+      <% }) %>
+    </div>
+  </main>
+</body></html>

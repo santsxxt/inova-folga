@@ -1,0 +1,24 @@
+<!doctype html><html lang="pt-br"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Novo pedido</title><link rel="stylesheet" href="/css/app.css"></head>
+<body>
+  <main class="col">
+    <a href="/app">← Voltar</a>
+    <form method="post" action="/app/pedido" class="card" style="width:auto">
+      <strong>Pedido de
+        <%= tipo === 'ferias' ? 'férias' : tipo === 'folga' ? 'folga' : 'troca de dia' %></strong>
+      <input type="hidden" name="tipo" value="<%= tipo %>">
+      <label>Data<%= tipo === 'ferias' ? ' início' : '' %>
+        <input type="date" name="dataInicio" required></label>
+      <% if (tipo === 'ferias') { %>
+        <label>Data fim <input type="date" name="dataFim"></label>
+      <% } %>
+      <% if (tipo === 'troca') { %>
+        <label>Trocar para o dia <input type="date" name="dataTrocaDestino"></label>
+      <% } %>
+      <textarea name="observacao" placeholder="Observação (opcional)" rows="3"></textarea>
+      <button>Enviar pedido</button>
+      <p class="link" style="margin:0">O patrão recebe e aprova.</p>
+    </form>
+  </main>
+</body></html>

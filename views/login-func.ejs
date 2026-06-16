@@ -1,0 +1,13 @@
+<!doctype html><html lang="pt-br"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Minha Escala</title><link rel="stylesheet" href="/css/app.css"></head>
+<body class="login">
+  <form method="post" action="/app/login" class="card">
+    <h1>Minha Escala</h1>
+    <% if (erro) { %><p class="erro"><%= erro %></p><% } %>
+    <input name="nome" placeholder="Seu nome" autofocus required>
+    <input name="pin" type="password" inputmode="numeric" placeholder="PIN" required>
+    <button>Entrar</button>
+    <a href="/login" class="link">Sou o patrão</a>
+  </form>
+</body></html>

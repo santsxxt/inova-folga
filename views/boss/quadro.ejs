@@ -1,0 +1,43 @@
+<!doctype html><html lang="pt-br"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Quadro de Horário</title><link rel="stylesheet" href="/css/app.css"></head>
+<body>
+  <%- include('../partials/topo') %>
+  <main>
+    <div style="display:flex;gap:10px;align-items:center;margin-bottom:12px;flex-wrap:wrap">
+      <h2 style="margin:0;font-size:18px">Quadro de Horário</h2>
+      <form method="get" style="display:flex;gap:6px;align-items:center">
+        <label>Início <input type="date" name="inicio" value="<%= inicio %>" onchange="this.form.submit()"></label>
+      </form>
+      <span style="color:#6b7280;font-size:13px">Clique numa célula pra definir o turno</span>
+    </div>
+    <div class="grid-wrap">
+      <table class="quadro">
+        <thead><tr><th style="text-align:left">Funcionário</th>
+          <% dias.forEach(d => { %><th class="<%= d.fimDeSemana ? 'fds' : '' %>"><%= d.dia %><br><small><%= d.semana %></small></th><% }) %>
+        </tr></thead>
+        <tbody>
+          <% grupos.forEach(g => { %>
+          <tr><th colspan="<%= dias.length + 1 %>" style="text-align:left;background:#eef0f4;color:#555"><%= g.setor %></th></tr>
+          <% g.funcionarios.forEach(f => { %>
+          <tr><th style="text-align:left"><%= f.nome %></th>
+            <% dias.forEach(d => { const t = mapa[f.id + '|' + d.iso]; %>
+              <td class="cel" data-func="<%= f.id %>" data-data="<%= d.iso %>" title="<%= t || '' %>"
+                  style="background:<%= t ? corPorTurno[t] : '' %>"></td>
+            <% }) %>
+          </tr>
+          <% }) %>
+          <% }) %>
+          <% if (grupos.length === 0) { %><tr><td colspan="<%= dias.length + 1 %>" style="padding:16px">Nenhum funcionário ativo. Cadastre em <a href="/cadastros">Cadastros</a>.</td></tr><% } %>
+        </tbody>
+      </table>
+    </div>
+    <div style="margin-top:12px;display:flex;gap:10px;flex-wrap:wrap">
+      <% turnos.forEach(t => { %>
+        <span class="badge" style="background:<%= t.cor %>"><%= t.rotulo %></span>
+      <% }) %>
+    </div>
+  </main>
+  <script>window.TURNOS = <%- JSON.stringify(turnos) %>;</script>
+  <script src="/js/quadro.js"></script>
+</body></html>

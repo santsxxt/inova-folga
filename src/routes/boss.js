@@ -127,6 +127,20 @@ router.post('/cadastros', requireBoss, (req, res) => {
   res.redirect('/cadastros');
 });
 
+router.post('/cadastros/salvar-tudo', requireBoss, (req, res) => {
+  for (const f of F.listarTodos(req.db)) {
+    const nome = req.body['nome_' + f.id];
+    if (nome == null || !String(nome).trim()) continue;
+    F.editar(req.db, f.id, {
+      nome,
+      setorId: req.body['setor_' + f.id] ? Number(req.body['setor_' + f.id]) : null,
+      cor: req.body['cor_' + f.id] || null,
+      aniversario: req.body['aniv_' + f.id] || null,
+    });
+  }
+  res.redirect('/cadastros');
+});
+
 router.post('/cadastros/:id/editar', requireBoss, (req, res) => {
   const { nome, setorId, cor, aniversario } = req.body;
   F.editar(req.db, Number(req.params.id), {

@@ -5,15 +5,23 @@
   <%- include('../partials/topo') %>
   <main>
     <h2 style="margin:0 0 12px;font-size:18px">Funcionários</h2>
+
     <form method="post" action="/cadastros" class="card" style="width:auto;max-width:760px;margin-bottom:16px;grid-template-columns:repeat(5,auto);align-items:end">
       <label>Nome<br><input name="nome" required></label>
       <label>Setor<br><select name="setorId"><option value="">—</option>
         <% setores.forEach(s => { %><option value="<%= s.id %>"><%= s.nome %></option><% }) %></select></label>
       <label>Cor<br><input name="cor" type="color" value="#7fb3ff"></label>
       <label>Aniversário<br><input name="aniversario" placeholder="DD/MM" style="width:90px"></label>
-      <label>PIN<br><input name="pin" inputmode="numeric" placeholder="ex 1234" style="width:90px"></label>
+      <label>PIN<br><input name="pin" placeholder="(vazio = nome)" style="width:120px"></label>
       <button>Adicionar</button>
     </form>
+
+    <!-- form de salvar-tudo: vazio aqui, os campos da tabela apontam via form="bulk" -->
+    <form id="bulk" method="post" action="/cadastros/salvar-tudo"></form>
+    <div class="barra">
+      <button form="bulk">💾 Salvar tudo</button>
+      <span class="dica">Edite todo mundo e salve de uma vez.</span>
+    </div>
 
     <div class="grid-wrap">
     <table class="tabela">
@@ -21,17 +29,15 @@
       <tbody>
         <% funcionarios.forEach(f => { %>
         <tr>
-          <td><form method="post" action="/cadastros/<%= f.id %>/editar" id="ed<%= f.id %>" style="margin:0">
-              <input name="nome" value="<%= f.nome %>" style="width:130px"></form></td>
-          <td><select name="setorId" form="ed<%= f.id %>"><option value="">—</option>
+          <td><input name="nome_<%= f.id %>" value="<%= f.nome %>" form="bulk" style="width:140px"></td>
+          <td><select name="setor_<%= f.id %>" form="bulk"><option value="">—</option>
               <% setores.forEach(s => { %><option value="<%= s.id %>" <%= f.setor_id == s.id ? 'selected' : '' %>><%= s.nome %></option><% }) %></select></td>
-          <td><input type="color" name="cor" form="ed<%= f.id %>" value="<%= f.cor || '#cccccc' %>"></td>
-          <td><input name="aniversario" form="ed<%= f.id %>" value="<%= f.aniversario || '' %>" style="width:64px"></td>
+          <td><input type="color" name="cor_<%= f.id %>" value="<%= f.cor || '#cccccc' %>" form="bulk"></td>
+          <td><input name="aniv_<%= f.id %>" value="<%= f.aniversario || '' %>" form="bulk" style="width:64px" placeholder="DD/MM"></td>
           <td><%= f.ativo ? 'sim' : 'não' %></td>
           <td><form method="post" action="/cadastros/<%= f.id %>/pin" style="display:flex;gap:4px;margin:0">
               <input name="pin" placeholder="novo PIN" style="width:84px"><button>OK</button></form></td>
-          <td style="display:flex;gap:6px">
-            <button form="ed<%= f.id %>">Salvar</button>
+          <td>
             <% if (f.ativo) { %>
               <form method="post" action="/cadastros/<%= f.id %>/desativar" style="margin:0"><button class="cinza">Desativar</button></form>
             <% } else { %>
@@ -43,5 +49,6 @@
       </tbody>
     </table>
     </div>
+    <div class="barra" style="margin-top:12px"><button form="bulk">💾 Salvar tudo</button></div>
   </main>
 </body></html>

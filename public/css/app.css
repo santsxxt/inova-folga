@@ -42,6 +42,14 @@ table.quadro th.fds { background: #fbeef0; color: var(--vermelho); }
 table.quadro tr.setor th { background: var(--vermelho); color: #fff; font-size: 11px; letter-spacing: .04em; text-transform: uppercase; position: sticky; left: 0; }
 table.quadro td.cel { cursor: pointer; min-width: 38px; height: 32px; }
 table.quadro td.cel:hover { outline: 2px solid var(--vermelho); outline-offset: -2px; }
+table.quadro td.cel:focus { outline: 3px solid var(--vermelho); outline-offset: -3px; }
+
+/* Menu de turnos */
+.turno-menu { position: absolute; z-index: 50; background: #fff; border: 1px solid var(--borda);
+  border-radius: 10px; box-shadow: 0 10px 30px rgba(0,0,0,.18); padding: 6px; min-width: 190px; }
+.turno-menu .opt { display: flex; align-items: center; gap: 9px; padding: 8px 10px; border-radius: 7px; cursor: pointer; font-size: 14px; }
+.turno-menu .opt.sel, .turno-menu .opt:hover { background: #fdecef; }
+.turno-menu .bola { width: 16px; height: 16px; border-radius: 50%; display: inline-block; }
 table.quadro tbody tr:nth-child(even) th { background: #fafbfc; }
 
 .tabela { border-collapse: collapse; width: 100%; background: #fff; font-size: 14px; border-radius: 10px; overflow: hidden; }

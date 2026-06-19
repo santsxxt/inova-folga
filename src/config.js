@@ -6,8 +6,11 @@ export const BOSS_PASS = process.env.BOSS_PASS || '1';
 export const BOSS_PASS_HASH = process.env.BOSS_PASS_HASH || ''; // alternativa scrypt (salt:hash)
 export const DB_PATH = process.env.DB_PATH || 'data/inovafolga.db';
 
-// Em produção, não deixa subir com a senha default '1' (força configurar BOSS_PASS/HASH no .env).
-if (process.env.NODE_ENV === 'production' && !BOSS_PASS_HASH && (BOSS_PASS === '1' || !BOSS_PASS)) {
-  console.error('[FATAL] BOSS_PASS está com o valor default em produção. Defina BOSS_PASS ou BOSS_PASS_HASH no .env.');
-  process.exit(1);
+// Em produção, alerta ALTO se a senha do patrão ainda é o default '1'.
+// (Avisa, mas NÃO derruba o app — tirar o site do ar dos 40 seria pior que a senha fraca.)
+export const SENHA_BOSS_INSEGURA =
+  process.env.NODE_ENV === 'production' && !BOSS_PASS_HASH && (BOSS_PASS === '1' || !BOSS_PASS);
+if (SENHA_BOSS_INSEGURA) {
+  console.warn('\n[AVISO DE SEGURANÇA] BOSS_PASS está com o valor default em produção.');
+  console.warn('  → Defina BOSS_PASS ou BOSS_PASS_HASH no .env e reinicie (pm2 restart inova-folga).\n');
 }

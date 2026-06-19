@@ -9,6 +9,7 @@
   </nav>
   <div class="side-sec">Painel</div>
   <nav class="side-nav">
+    <a href="/saldos" class="<%= pagina === 'saldos' ? 'ativo' : '' %>">📊 Saldos</a>
     <a href="/pendencias" class="<%= pagina === 'pendencias' ? 'ativo' : '' %>">🔔 Pendências<% if (naoLidas > 0) { %> <span class="badge" style="background:var(--vermelho)"><%= naoLidas %></span><% } %></a>
     <a href="/cadastros" class="<%= pagina === 'cadastros' ? 'ativo' : '' %>">👥 Cadastros</a>
     <a href="/auditoria" class="<%= pagina === 'auditoria' ? 'ativo' : '' %>">🗂 Auditoria</a>

@@ -6,6 +6,7 @@ import * as S from '../repo/solicitacoes.js';
 import * as H from '../repo/feriados.js';
 import * as C from '../repo/config.js';
 import * as A from '../repo/auditoria.js';
+import * as SAL from '../repo/saldos.js';
 import { BOSS_USER } from '../config.js';
 import { dias, hojeISO } from '../lib/datas.js';
 
@@ -179,6 +180,17 @@ router.post('/cadastros/:id/reativar', requireBoss, (req, res) => {
   F.reativar(req.db, Number(req.params.id));
   A.registrar(req.db, { ator: ator(), acao: 'reativou', alvo: nomeFunc(req.db, Number(req.params.id)) }, agora());
   res.redirect('/cadastros');
+});
+
+// ---- Saldos (férias / folgas / faltas / domingos) ----
+router.get('/saldos', requireBoss, (req, res) => {
+  const hoje = new Date();
+  const ano = Number(req.query.ano) || hoje.getUTCFullYear();
+  const mes = Number(req.query.mes) || (hoje.getUTCMonth() + 1);
+  res.render('boss/saldos', {
+    pagina: 'saldos', ano, mes,
+    lista: SAL.saldos(req.db, { ano, mes }), diasFerias: SAL.DIAS_FERIAS,
+  });
 });
 
 // ---- Auditoria ----

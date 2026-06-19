@@ -6,6 +6,7 @@ import * as E from '../src/repo/escala.js';
 import * as S from '../src/repo/solicitacoes.js';
 import * as H from '../src/repo/feriados.js';
 import * as AUD from '../src/repo/auditoria.js';
+import * as SAL from '../src/repo/saldos.js';
 import { hashSecret, verifySecret } from '../src/auth.js';
 import { makeLoginLimiter } from '../src/security.js';
 
@@ -139,6 +140,23 @@ test('auditoria: registra e lista em ordem reversa, filtra por ator', () => {
   assert.equal(todos[0].ator, 'Sistema'); // mais recente primeiro
   assert.equal(AUD.listar(db, { ator: 'Carlos' }).length, 2);
   assert.deepEqual(AUD.atores(db), ['Carlos', 'Sistema']);
+});
+
+test('saldos: deriva férias/folgas/faltas/domingos da escala', () => {
+  const db = openDb(':memory:');
+  const ana = F.criar(db, { nome: 'Ana', setorId: setorId(db, 'Caixa') });
+  E.definirCelula(db, ana, '2026-06-01', 'ferias');
+  E.definirCelula(db, ana, '2026-06-02', 'ferias');
+  E.definirCelula(db, ana, '2026-06-10', 'folga');
+  E.definirCelula(db, ana, '2026-06-12', 'falta');
+  E.definirCelula(db, ana, '2026-06-07', 'manha'); // domingo 07/06/2026 trabalhado
+  E.definirCelula(db, ana, '2026-06-14', 'folga'); // domingo de folga (não conta)
+  const s = SAL.saldos(db, { ano: 2026, mes: 6 }).find((x) => x.nome === 'Ana');
+  assert.equal(s.ferias_tirados, 2);
+  assert.equal(s.ferias_faltam, SAL.DIAS_FERIAS - 2);
+  assert.equal(s.folgas_mes, 2);
+  assert.equal(s.faltas_ano, 1);
+  assert.equal(s.domingos, 1);
 });
 
 test('rate-limit de login: bloqueia após N falhas e libera no acerto', () => {

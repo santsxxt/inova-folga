@@ -1,0 +1,51 @@
+<!doctype html><html lang="pt-br"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Saldos</title><link rel="stylesheet" href="/css/app.css">
+<style>
+  .saldos-head,.saldos-row{ display:grid; grid-template-columns:1.4fr 1.5fr .9fr .9fr .8fr; gap:10px; align-items:center; padding:12px 16px; }
+  .saldos-head{ font-size:10px; text-transform:uppercase; letter-spacing:.5px; color:var(--muted); font-weight:600; border-bottom:1px solid var(--borda); }
+  .saldos-row{ border-bottom:1px solid rgba(255,255,255,.05); font-size:14px; }
+  .saldos-row .who{ font-weight:600; } .saldos-row .who small{ display:block; color:var(--muted); font-weight:400; font-size:11px; }
+  .sbar{ height:8px; border-radius:99px; background:rgba(255,255,255,.08); overflow:hidden; margin-top:6px; }
+  .sbar i{ display:block; height:100%; background:linear-gradient(90deg,#ffd84d,#ffb300); }
+  .sval{ font-size:11px; color:var(--muted); } .sval b{ color:#fff; }
+  .pill-n{ font-weight:800; font-size:16px; } .pill-s{ font-size:10px; color:var(--muted); }
+</style></head>
+<body>
+  <%- include('../partials/topo') %>
+  <main>
+    <div class="barra">
+      <h2>Saldos da equipe</h2>
+      <span class="dica">Férias, folgas, faltas e domingos — calculado da escala</span>
+      <form method="get" style="margin-left:auto;display:flex;gap:8px">
+        <label>Ano <input type="number" name="ano" value="<%= ano %>" style="width:90px" onchange="this.form.submit()"></label>
+        <label>Mês
+          <select name="mes" onchange="this.form.submit()">
+            <% for (let m=1;m<=12;m++){ %><option value="<%= m %>" <%= m===mes?'selected':'' %>><%= String(m).padStart(2,'0') %></option><% } %>
+          </select>
+        </label>
+      </form>
+    </div>
+
+    <div class="grid-wrap" style="overflow:visible">
+      <div class="saldos-head">
+        <span>Funcionário</span><span>Férias (de <%= diasFerias %>)</span><span>Folgas no mês</span><span>Faltas no ano</span><span>Domingos</span>
+      </div>
+      <% if (lista.length === 0) { %>
+        <div style="padding:18px;color:var(--muted)">Sem funcionários ativos.</div>
+      <% } %>
+      <% lista.forEach(s => { const pct = Math.round((s.ferias_tirados / diasFerias) * 100); %>
+        <div class="saldos-row">
+          <div class="who"><%= s.nome %><% if (s.setor) { %><small><%= s.setor %></small><% } %></div>
+          <div>
+            <span class="sval"><b><%= s.ferias_tirados %></b> tirados · <b><%= s.ferias_faltam %></b> faltam</span>
+            <div class="sbar"><i style="width:<%= Math.min(100,pct) %>%"></i></div>
+          </div>
+          <div><span class="pill-n"><%= s.folgas_mes %></span> <span class="pill-s">este mês</span></div>
+          <div><span class="pill-n" style="color:<%= s.faltas_ano > 2 ? '#ff8a96' : '#fff' %>"><%= s.faltas_ano %></span> <span class="pill-s">no ano</span></div>
+          <div><span class="pill-n"><%= s.domingos %></span> <span class="pill-s">trab.</span></div>
+        </div>
+      <% }) %>
+    </div>
+  </main>
+</body></html>

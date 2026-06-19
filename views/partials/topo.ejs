@@ -1,14 +1,18 @@
-<header class="topo">
-  <span class="marca">Inova Folga</span>
-  <nav>
-    <a href="/quadro" class="<%= pagina === 'quadro' ? 'ativo' : '' %>">Geral</a>
-    <a href="/caixas" class="<%= pagina === 'caixas' ? 'ativo' : '' %>">Caixas</a>
-    <a href="/domingos" class="<%= pagina === 'domingos' ? 'ativo' : '' %>">Dom/Feriados</a>
-    <a href="/ferias" class="<%= pagina === 'ferias' ? 'ativo' : '' %>">Férias</a>
-    <a href="/pendencias" class="<%= pagina === 'pendencias' ? 'ativo' : '' %>">Pendências<% if (naoLidas > 0) { %> <span class="badge" style="background:#c8102e;color:#fff"><%= naoLidas %></span><% } %></a>
-    <a href="/cadastros" class="<%= pagina === 'cadastros' ? 'ativo' : '' %>">Cadastros</a>
-    <a href="/auditoria" class="<%= pagina === 'auditoria' ? 'ativo' : '' %>">Auditoria</a>
-    <a href="/config" class="<%= pagina === 'config' ? 'ativo' : '' %>">Config</a>
+<aside class="side">
+  <div class="side-logo">Inova<b>Folga</b><small>Rede Inova · Muriaé</small></div>
+  <div class="side-sec">Escalas</div>
+  <nav class="side-nav">
+    <a href="/quadro" class="<%= pagina === 'quadro' ? 'ativo' : '' %>">▦ Quadro</a>
+    <a href="/caixas" class="<%= pagina === 'caixas' ? 'ativo' : '' %>">🧮 Caixas &amp; Entrega</a>
+    <a href="/domingos" class="<%= pagina === 'domingos' ? 'ativo' : '' %>">🗓 Domingos / Feriados</a>
+    <a href="/ferias" class="<%= pagina === 'ferias' ? 'ativo' : '' %>">🌴 Férias</a>
   </nav>
-  <a href="/logout" class="sair">Sair</a>
-</header>
+  <div class="side-sec">Painel</div>
+  <nav class="side-nav">
+    <a href="/pendencias" class="<%= pagina === 'pendencias' ? 'ativo' : '' %>">🔔 Pendências<% if (naoLidas > 0) { %> <span class="badge" style="background:var(--vermelho)"><%= naoLidas %></span><% } %></a>
+    <a href="/cadastros" class="<%= pagina === 'cadastros' ? 'ativo' : '' %>">👥 Cadastros</a>
+    <a href="/auditoria" class="<%= pagina === 'auditoria' ? 'ativo' : '' %>">🗂 Auditoria</a>
+    <a href="/config" class="<%= pagina === 'config' ? 'ativo' : '' %>">⚙️ Config</a>
+  </nav>
+  <a href="/logout" class="side-sair">↩ Sair</a>
+</aside>

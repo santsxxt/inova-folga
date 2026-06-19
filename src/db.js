@@ -4,13 +4,17 @@ import { dirname } from 'node:path';
 
 export const SETORES = ['Escritório', 'Caixa', 'Atendente', 'Estoque', 'Entrega'];
 
+// Turnos alinhados à legenda do quadro físico da Rede Inova.
+// Códigos antigos preservados (manha/tarde/noite) p/ não orfanar a escala já lançada.
 export const TURNOS = [
-  { codigo: 'manha',  rotulo: 'Manhã',           cor: '#f6a5c0', inicio: '06:00', fim: '14:30' },
-  { codigo: 'tarde',  rotulo: 'Tarde',           cor: '#7fb3ff', inicio: '13:30', fim: '22:00' },
-  { codigo: 'noite',  rotulo: 'Noite',           cor: '#8f78c9', inicio: '14:30', fim: '00:00' },
-  { codigo: 'folga',  rotulo: 'Folga da semana', cor: '#86d191', inicio: null,    fim: null },
-  { codigo: 'ferias', rotulo: 'Férias',          cor: '#ffd84d', inicio: null,    fim: null },
-  { codigo: 'falta',  rotulo: 'Falta',           cor: '#e3554a', inicio: null,    fim: null },
+  { codigo: 'manha',   rotulo: 'Dia',             cor: '#e3554a', inicio: '06:00', fim: '14:30' },
+  { codigo: 'tarde',   rotulo: 'Tarde 12:30',     cor: '#5b9bff', inicio: '12:30', fim: '22:00' },
+  { codigo: 'noite',   rotulo: 'Noite até 22h',   cor: '#b39ddb', inicio: '14:30', fim: '22:00' },
+  { codigo: 'noite23', rotulo: 'Noite até 23h',   cor: '#9575cd', inicio: '15:30', fim: '23:00' },
+  { codigo: 'noite24', rotulo: 'Noite até 24h',   cor: '#7e57c2', inicio: '16:30', fim: '00:00' },
+  { codigo: 'folga',   rotulo: 'Folga da semana', cor: '#7bd18a', inicio: null,    fim: null },
+  { codigo: 'ferias',  rotulo: 'Férias',          cor: '#ffd84d', inicio: null,    fim: null },
+  { codigo: 'falta',   rotulo: 'Falta',           cor: '#ff5470', inicio: null,    fim: null },
 ];
 
 export const HORARIOS_CAIXA = ['06:00-14:30', '08:00-16:30', '14:30-22:00', '16:30-00:00'];
@@ -110,10 +114,15 @@ export function openDb(path) {
   const insertTurno = db.prepare(
     'INSERT OR IGNORE INTO turnos (codigo, rotulo, cor, inicio, fim) VALUES (?,?,?,?,?)'
   );
+  // Alinha rótulo/cor dos turnos canônicos à legenda atual (não toca em turnos extras criados pelo patrão).
+  const syncTurno = db.prepare('UPDATE turnos SET rotulo = ?, cor = ?, inicio = ?, fim = ? WHERE codigo = ?');
   const insertSetor = db.prepare('INSERT OR IGNORE INTO setores (nome, ordem) VALUES (?,?)');
   const insertHorario = db.prepare('INSERT OR IGNORE INTO horarios_caixa (horario, ordem) VALUES (?,?)');
   const seed = db.transaction(() => {
-    for (const t of TURNOS) insertTurno.run(t.codigo, t.rotulo, t.cor, t.inicio, t.fim);
+    for (const t of TURNOS) {
+      insertTurno.run(t.codigo, t.rotulo, t.cor, t.inicio, t.fim);
+      syncTurno.run(t.rotulo, t.cor, t.inicio, t.fim, t.codigo);
+    }
     SETORES.forEach((nome, i) => insertSetor.run(nome, i));
     HORARIOS_CAIXA.forEach((h, i) => insertHorario.run(h, i));
   });

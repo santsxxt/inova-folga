@@ -3,7 +3,7 @@ import { requireFuncionario } from '../auth.js';
 import * as E from '../repo/escala.js';
 import * as S from '../repo/solicitacoes.js';
 import * as C from '../repo/config.js';
-import { hojeISO } from '../lib/datas.js';
+import { hojeISO, dias } from '../lib/datas.js';
 
 const router = Router();
 
@@ -11,14 +11,17 @@ router.get('/', requireFuncionario, (req, res) => {
   const id = req.session.funcionarioId;
   const hoje = hojeISO();
   const proximos = E.turnosDoFuncionario(req.db, id, hoje, 30);
+  const porData = {};
+  for (const p of proximos) porData[p.data] = p.turno;
   const rotuloTurno = C.rotuloPorTurno(req.db);
   const corPorTurno = C.corPorTurno(req.db);
+  const semana = dias(hoje, 7).map((d) => ({ ...d, turno: porData[d.iso] || null }));
   const hojeTurno = proximos.find((p) => p.data === hoje);
   const proximaFolga = proximos.find((p) => p.turno === 'folga');
   const proximasFerias = proximos.find((p) => p.turno === 'ferias');
   res.render('func/home', {
     nome: req.session.funcionarioNome, hoje, hojeTurno, proximaFolga, proximasFerias,
-    rotuloTurno, corPorTurno,
+    rotuloTurno, corPorTurno, semana,
   });
 });
 

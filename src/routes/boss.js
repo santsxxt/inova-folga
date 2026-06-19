@@ -5,11 +5,15 @@ import * as E from '../repo/escala.js';
 import * as S from '../repo/solicitacoes.js';
 import * as H from '../repo/feriados.js';
 import * as C from '../repo/config.js';
+import * as A from '../repo/auditoria.js';
+import { BOSS_USER } from '../config.js';
 import { dias, hojeISO } from '../lib/datas.js';
 
 const router = Router();
 const POSTOS = ['Caixa 1', 'Caixa 2', 'Caixa 3', 'Entrega'];
 const agora = () => new Date().toISOString();
+const ator = () => BOSS_USER;
+const nomeFunc = (db, id) => db.prepare('SELECT nome FROM funcionarios WHERE id = ?').get(id)?.nome || ('#' + id);
 
 // ---- Geral: Quadro de Horário ----
 router.get('/quadro', requireBoss, (req, res) => {
@@ -28,6 +32,10 @@ router.post('/quadro/celula', requireBoss, (req, res) => {
   const { funcionarioId, data, turno } = req.body;
   if (turno === '' || turno == null) E.limparCelula(req.db, Number(funcionarioId), data);
   else E.definirCelula(req.db, Number(funcionarioId), data, turno);
+  A.registrar(req.db, {
+    ator: ator(), acao: 'alterou escala', alvo: nomeFunc(req.db, Number(funcionarioId)),
+    detalhe: `${data} → ${turno || 'limpo'}`,
+  }, agora());
   res.json({ ok: true, cor: C.corPorTurno(req.db)[turno] || '' });
 });
 
@@ -100,12 +108,16 @@ router.get('/pendencias', requireBoss, (req, res) => {
 });
 
 router.post('/pendencias/:id/aprovar', requireBoss, (req, res) => {
+  const s = req.db.prepare('SELECT funcionario_id, tipo FROM solicitacoes WHERE id = ?').get(Number(req.params.id));
   S.aprovar(req.db, Number(req.params.id), agora());
+  if (s) A.registrar(req.db, { ator: ator(), acao: 'aprovou ' + s.tipo, alvo: nomeFunc(req.db, s.funcionario_id) }, agora());
   res.redirect('/pendencias');
 });
 
 router.post('/pendencias/:id/recusar', requireBoss, (req, res) => {
+  const s = req.db.prepare('SELECT funcionario_id, tipo FROM solicitacoes WHERE id = ?').get(Number(req.params.id));
   S.recusar(req.db, Number(req.params.id), req.body.motivo, agora());
+  if (s) A.registrar(req.db, { ator: ator(), acao: 'recusou ' + s.tipo, alvo: nomeFunc(req.db, s.funcionario_id), detalhe: req.body.motivo || null }, agora());
   res.redirect('/pendencias');
 });
 
@@ -150,18 +162,35 @@ router.post('/cadastros/:id/editar', requireBoss, (req, res) => {
 });
 
 router.post('/cadastros/:id/pin', requireBoss, (req, res) => {
-  if (req.body.pin) F.definirPin(req.db, Number(req.params.id), req.body.pin);
+  if (req.body.pin) {
+    F.definirPin(req.db, Number(req.params.id), req.body.pin);
+    A.registrar(req.db, { ator: ator(), acao: 'mudou PIN', alvo: nomeFunc(req.db, Number(req.params.id)) }, agora());
+  }
   res.redirect('/cadastros');
 });
 
 router.post('/cadastros/:id/desativar', requireBoss, (req, res) => {
+  A.registrar(req.db, { ator: ator(), acao: 'desativou', alvo: nomeFunc(req.db, Number(req.params.id)) }, agora());
   F.desativar(req.db, Number(req.params.id));
   res.redirect('/cadastros');
 });
 
 router.post('/cadastros/:id/reativar', requireBoss, (req, res) => {
   F.reativar(req.db, Number(req.params.id));
+  A.registrar(req.db, { ator: ator(), acao: 'reativou', alvo: nomeFunc(req.db, Number(req.params.id)) }, agora());
   res.redirect('/cadastros');
+});
+
+// ---- Auditoria ----
+router.get('/auditoria', requireBoss, (req, res) => {
+  const pagina = Math.max(1, Number(req.query.p) || 1);
+  const porPagina = 100;
+  const filtroAtor = req.query.ator || null;
+  const registros = A.listar(req.db, { limite: porPagina, offset: (pagina - 1) * porPagina, ator: filtroAtor });
+  res.render('boss/auditoria', {
+    pagina: 'auditoria', registros, total: A.contar(req.db),
+    atores: A.atores(req.db), filtroAtor, p: pagina, porPagina,
+  });
 });
 
 // ---- Configurações: setores e turnos (editáveis) ----

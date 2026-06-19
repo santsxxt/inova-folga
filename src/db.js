@@ -89,6 +89,16 @@ CREATE TABLE IF NOT EXISTS notificacoes (
   lida INTEGER NOT NULL DEFAULT 0,
   created_at TEXT NOT NULL
 );
+CREATE TABLE IF NOT EXISTS auditoria (
+  id INTEGER PRIMARY KEY AUTOINCREMENT,
+  ator TEXT NOT NULL,
+  acao TEXT NOT NULL,
+  alvo TEXT,
+  detalhe TEXT,
+  created_at TEXT NOT NULL
+);
+CREATE INDEX IF NOT EXISTS idx_auditoria_created ON auditoria(created_at);
+CREATE INDEX IF NOT EXISTS idx_escala_data ON escala_dia(data);
 `;
 
 export function openDb(path) {

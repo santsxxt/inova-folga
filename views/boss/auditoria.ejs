@@ -1,0 +1,46 @@
+<!doctype html><html lang="pt-br"><head><meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Auditoria</title><link rel="stylesheet" href="/css/app.css"></head>
+<body>
+  <%- include('../partials/topo') %>
+  <main>
+    <div class="barra">
+      <h2>Auditoria</h2>
+      <span class="dica">Quem mexeu, no quê e quando · <%= total %> registros</span>
+      <form method="get" style="margin-left:auto">
+        <label>Filtrar por
+          <select name="ator" onchange="this.form.submit()">
+            <option value="">todos</option>
+            <% atores.forEach(a => { %>
+              <option value="<%= a %>" <%= filtroAtor === a ? 'selected' : '' %>><%= a %></option>
+            <% }) %>
+          </select>
+        </label>
+      </form>
+    </div>
+
+    <div class="grid-wrap" style="overflow:visible">
+      <% if (registros.length === 0) { %>
+        <div style="padding:18px;color:#9aa0aa">Nenhum registro ainda. As alterações na escala, aprovações e cadastros aparecem aqui.</div>
+      <% } %>
+      <% registros.forEach(r => {
+           const d = new Date(r.created_at);
+           const quando = isNaN(d) ? r.created_at : d.toLocaleString('pt-BR', { day:'2-digit', month:'2-digit', hour:'2-digit', minute:'2-digit' });
+      %>
+        <div class="auditoria-row">
+          <span class="when"><%= quando %></span>
+          <span class="who"><%= r.ator %></span>
+          <span class="what"><%= r.acao %><% if (r.alvo) { %> · <strong style="color:#fff"><%= r.alvo %></strong><% } %><% if (r.detalhe) { %> <span style="color:#9aa0aa">(<%= r.detalhe %>)</span><% } %></span>
+        </div>
+      <% }) %>
+    </div>
+
+    <% if (total > porPagina) { %>
+      <div style="margin-top:14px;display:flex;gap:10px;align-items:center">
+        <% if (p > 1) { %><a class="badge" style="background:rgba(255,255,255,.08);text-decoration:none" href="/auditoria?p=<%= p-1 %><%= filtroAtor ? '&ator='+encodeURIComponent(filtroAtor) : '' %>">‹ anteriores</a><% } %>
+        <span style="color:#9aa0aa;font-size:13px">página <%= p %></span>
+        <% if (p * porPagina < total) { %><a class="badge" style="background:rgba(255,255,255,.08);text-decoration:none" href="/auditoria?p=<%= p+1 %><%= filtroAtor ? '&ator='+encodeURIComponent(filtroAtor) : '' %>">próximas ›</a><% } %>
+      </div>
+    <% } %>
+  </main>
+</body></html>

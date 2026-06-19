@@ -5,7 +5,9 @@ import * as F from '../src/repo/funcionarios.js';
 import * as E from '../src/repo/escala.js';
 import * as S from '../src/repo/solicitacoes.js';
 import * as H from '../src/repo/feriados.js';
+import * as AUD from '../src/repo/auditoria.js';
 import { hashSecret, verifySecret } from '../src/auth.js';
+import { makeLoginLimiter } from '../src/security.js';
 
 const AGORA = '2026-06-16T10:00:00';
 const setorId = (db, nome) => db.prepare('SELECT id FROM setores WHERE nome = ?').get(nome).id;
@@ -113,4 +115,39 @@ test('feriados: cadastra e consulta conjunto do período', () => {
   const set = H.conjuntoNoPeriodo(db, '2026-06-15', '2026-06-30');
   assert.ok(set.has('2026-06-18'));
   assert.ok(!set.has('2026-07-09'));
+});
+
+test('PIN: nome só loga enquanto não há PIN; para de valer após definir', () => {
+  const db = openDb(':memory:');
+  const id = F.criar(db, { nome: 'Bruno' });
+  // sem PIN definido: o nome loga (onboarding)
+  assert.equal(F.autenticar(db, 'Bruno', 'bruno')?.id, id);
+  assert.equal(F.autenticar(db, 'BRUNO', 'BRUNO')?.id, id); // case-insensitive
+  // define PIN próprio
+  F.definirPin(db, id, '4321');
+  assert.equal(F.autenticar(db, 'Bruno', '4321')?.id, id);
+  assert.equal(F.autenticar(db, 'Bruno', 'Bruno'), null); // nome não loga mais
+});
+
+test('auditoria: registra e lista em ordem reversa, filtra por ator', () => {
+  const db = openDb(':memory:');
+  AUD.registrar(db, { ator: 'Carlos', acao: 'alterou escala', alvo: 'Ana', detalhe: '2026-06-15 → noite' }, '2026-06-16T09:00:00');
+  AUD.registrar(db, { ator: 'Carlos', acao: 'aprovou folga', alvo: 'Bia' }, '2026-06-16T10:00:00');
+  AUD.registrar(db, { ator: 'Sistema', acao: 'reservou folga', alvo: 'Ana' }, '2026-06-16T11:00:00');
+  assert.equal(AUD.contar(db), 3);
+  const todos = AUD.listar(db);
+  assert.equal(todos[0].ator, 'Sistema'); // mais recente primeiro
+  assert.equal(AUD.listar(db, { ator: 'Carlos' }).length, 2);
+  assert.deepEqual(AUD.atores(db), ['Carlos', 'Sistema']);
+});
+
+test('rate-limit de login: bloqueia após N falhas e libera no acerto', () => {
+  const lim = makeLoginLimiter({ max: 3, janelaMs: 60000, campoUsuario: 'usuario' });
+  const req = { ip: '1.2.3.4', body: { usuario: 'Carlos' } };
+  const run = () => { const r = { ...req, rateLimited: undefined }; lim.middleware(r, { status() {} }, () => {}); return r.rateLimited; };
+  assert.equal(run(), undefined);
+  lim.falhou(req); lim.falhou(req); lim.falhou(req); // 3 falhas
+  assert.ok(run(), 'deveria estar bloqueado após 3 falhas');
+  lim.ok(req); // acerto limpa
+  assert.equal(run(), undefined);
 });

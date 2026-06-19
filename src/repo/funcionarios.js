@@ -52,8 +52,12 @@ export function autenticar(db, nome, pin) {
     'SELECT * FROM funcionarios WHERE nome = ? COLLATE NOCASE AND ativo = 1'
   ).get(String(nome).trim());
   if (!row) return null;
-  const pinOk = verifySecret(pin, row.pin)
-    || String(pin).trim().toLowerCase() === String(row.nome).trim().toLowerCase();
+  // Tem PIN próprio definido? (formato salt:hash do scrypt)
+  const temPin = !!(row.pin && row.pin.includes(':'));
+  const pinOk = temPin
+    ? verifySecret(pin, row.pin)
+    // Onboarding: enquanto não houver PIN, o próprio nome loga. Assim que define PIN, para de valer.
+    : String(pin).trim().toLowerCase() === String(row.nome).trim().toLowerCase();
   if (!pinOk) return null;
   return { id: row.id, nome: row.nome };
 }

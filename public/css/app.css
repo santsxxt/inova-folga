@@ -20,13 +20,46 @@ a{ color:var(--vermelho); }
 ::-webkit-scrollbar{ width:10px; height:10px; }
 ::-webkit-scrollbar-thumb{ background:rgba(255,255,255,.14); border-radius:10px; }
 
-/* ===== Login ===== */
-.login{ display:grid; place-items:center; min-height:100vh; padding:16px; }
-.card{ background:var(--glass); padding:26px; border-radius:18px; backdrop-filter:blur(12px);
-  border:1px solid var(--borda); box-shadow:inset 0 1px 0 rgba(255,255,255,.14), 0 30px 60px -30px #000;
-  display:grid; gap:13px; width:min(92vw,370px); }
-.card h1{ margin:0 0 6px; font-size:24px; font-weight:800; letter-spacing:-.4px; }
-.card h1::after{ content:""; }
+/* ===== Login (foda — split no PC, empilhado no celular) ===== */
+.login{ min-height:100vh; }
+.auth{ display:grid; grid-template-columns:1.05fr .95fr; min-height:100vh; }
+.auth-hero{ position:relative; overflow:hidden; padding:56px 52px; display:flex; flex-direction:column; justify-content:center;
+  background:
+    radial-gradient(80% 60% at 15% 10%, rgba(255,59,78,.34), transparent 60%),
+    radial-gradient(70% 70% at 100% 100%, rgba(138,111,192,.28), transparent 60%),
+    linear-gradient(160deg, #20070d, #0a0709);
+  border-right:1px solid var(--borda); }
+.auth-hero::before{ content:""; position:absolute; inset:-30%;
+  background:radial-gradient(40% 40% at 50% 50%, rgba(255,59,78,.16), transparent 70%); animation:authdrift 14s ease-in-out infinite alternate; }
+@keyframes authdrift{ to{ transform:translate(8%,6%) scale(1.15); } }
+.auth-hero > *{ position:relative; z-index:1; }
+.auth-brand{ font-size:30px; font-weight:800; letter-spacing:-.6px; color:#fff; }
+.auth-brand b{ color:var(--vermelho); }
+.auth-hero h2{ font-size:30px; line-height:1.18; font-weight:800; letter-spacing:-.6px; margin:18px 0 10px; max-width:14ch; }
+.auth-hero p{ color:#c7ccd4; font-size:15px; max-width:34ch; margin:0 0 26px; }
+.auth-feats{ list-style:none; padding:0; margin:0; display:grid; gap:12px; }
+.auth-feats li{ display:flex; align-items:center; gap:12px; color:#dfe3ea; font-size:14px; }
+.auth-feats .fi{ width:34px; height:34px; border-radius:10px; display:flex; align-items:center; justify-content:center; font-size:16px;
+  background:rgba(255,255,255,.07); border:1px solid var(--borda); flex:0 0 auto; }
+.auth-form{ display:grid; place-items:center; padding:24px; }
+/* card genérico (usado em todas as telas) */
+.card{ background:var(--glass); padding:16px; border-radius:16px; backdrop-filter:blur(10px);
+  border:1px solid var(--borda); box-shadow:inset 0 1px 0 rgba(255,255,255,.1), 0 20px 44px -30px #000; }
+/* card específico do login */
+.auth .card{ padding:30px 26px; border-radius:20px; display:grid; gap:13px; width:min(92vw,380px);
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.14), 0 40px 80px -40px #000; animation:fadeUp .5s cubic-bezier(.2,.7,.2,1); }
+.auth .card .logo-badge{ width:54px; height:54px; border-radius:15px; display:flex; align-items:center; justify-content:center;
+  font-size:26px; background:linear-gradient(135deg,var(--vermelho),var(--vermelho2));
+  box-shadow:0 14px 30px -12px var(--vermelho); margin-bottom:4px; }
+.auth .card h1{ margin:0; font-size:23px; font-weight:800; letter-spacing:-.4px; }
+.auth .card .sub{ margin:-6px 0 6px; color:var(--muted); font-size:13px; }
+@keyframes fadeUp{ from{ opacity:0; transform:translateY(12px);} to{ opacity:1; transform:none; } }
+@media (max-width:860px){
+  .auth{ grid-template-columns:1fr; }
+  .auth-hero{ display:none; }
+  .auth-form{ min-height:100vh; padding:18px;
+    background:radial-gradient(80% 50% at 50% 0%, rgba(255,59,78,.2), transparent 60%), var(--bg); }
+}
 input,button,select,textarea{ padding:12px 13px; border-radius:11px; font-size:15px; font-family:inherit;
   border:1px solid var(--borda); background:rgba(255,255,255,.05); color:var(--txt); }
 input::placeholder,textarea::placeholder{ color:#8c93a0; }

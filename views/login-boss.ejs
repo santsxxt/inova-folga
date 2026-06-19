@@ -1,13 +1,30 @@
 <!doctype html><html lang="pt-br"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Inova Folga — Patrão</title><link rel="stylesheet" href="/css/app.css?v=4"></head>
+<title>Inova Folga — Patrão</title><link rel="stylesheet" href="/css/app.css?v=5"></head>
 <body class="login">
-  <form method="post" action="/login" class="card">
-    <h1>Inova Folga</h1>
-    <% if (erro) { %><p class="erro"><%= erro %></p><% } %>
-    <input name="usuario" placeholder="Usuário" autofocus required>
-    <input name="senha" type="password" placeholder="Senha" required>
-    <button>Entrar</button>
-    <a href="/app/login" class="link">Sou funcionário</a>
-  </form>
+  <div class="auth">
+    <div class="auth-hero">
+      <div class="auth-brand">Inova<b>Folga</b></div>
+      <h2>A escala da equipe, sem dor de cabeça.</h2>
+      <p>Quadro, caixas, domingos e férias num lugar só — rápido, bonito e no controle do Carlos.</p>
+      <ul class="auth-feats">
+        <li><span class="fi">▦</span> Quadro de horário vivo e editável</li>
+        <li><span class="fi">🗓</span> Domingos, feriados e folga compensada</li>
+        <li><span class="fi">📊</span> Saldos de férias, folgas e faltas</li>
+        <li><span class="fi">🗂</span> Auditoria de tudo que muda</li>
+      </ul>
+    </div>
+    <div class="auth-form">
+      <form method="post" action="/login" class="card">
+        <div class="logo-badge">📅</div>
+        <h1>Bem-vindo de volta</h1>
+        <div class="sub">Acesso do patrão</div>
+        <% if (erro) { %><p class="erro"><%= erro %></p><% } %>
+        <input name="usuario" placeholder="Usuário" autofocus required autocomplete="username">
+        <input name="senha" type="password" placeholder="Senha" required autocomplete="current-password">
+        <button>Entrar</button>
+        <a href="/app/login" class="link">Sou funcionário →</a>
+      </form>
+    </div>
+  </div>
 </body></html>

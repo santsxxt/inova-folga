@@ -1,13 +1,29 @@
 <!doctype html><html lang="pt-br"><head><meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>Minha Escala</title><link rel="stylesheet" href="/css/app.css?v=4"></head>
+<title>Minha Escala</title><link rel="stylesheet" href="/css/app.css?v=5"></head>
 <body class="login">
-  <form method="post" action="/app/login" class="card">
-    <h1>Minha Escala</h1>
-    <% if (erro) { %><p class="erro"><%= erro %></p><% } %>
-    <input name="nome" placeholder="Seu nome" autofocus required>
-    <input name="pin" type="password" inputmode="numeric" placeholder="PIN" required>
-    <button>Entrar</button>
-    <a href="/login" class="link">Sou o patrão</a>
-  </form>
+  <div class="auth">
+    <div class="auth-hero">
+      <div class="auth-brand">Inova<b>Folga</b></div>
+      <h2>Sua escala, no seu bolso.</h2>
+      <p>Veja seus turnos, peça folga ou troca e acompanhe seus pedidos — tudo pelo celular.</p>
+      <ul class="auth-feats">
+        <li><span class="fi">📅</span> Sua semana sempre à mão</li>
+        <li><span class="fi">😴</span> Peça folga em 2 toques</li>
+        <li><span class="fi">🔁</span> Troca de dia com aprovação</li>
+      </ul>
+    </div>
+    <div class="auth-form">
+      <form method="post" action="/app/login" class="card">
+        <div class="logo-badge">📅</div>
+        <h1>Minha Escala</h1>
+        <div class="sub">Entre com seu nome e PIN</div>
+        <% if (erro) { %><p class="erro"><%= erro %></p><% } %>
+        <input name="nome" placeholder="Seu nome" autofocus required autocomplete="username">
+        <input name="pin" type="password" inputmode="numeric" placeholder="PIN" required autocomplete="current-password">
+        <button>Entrar</button>
+        <a href="/login" class="link">Sou o patrão →</a>
+      </form>
+    </div>
+  </div>
 </body></html>

@@ -5,6 +5,7 @@ import { dirname, join } from 'node:path';
 import { openDb } from './src/db.js';
 import { PORT, SESSION_SECRET, DB_PATH } from './src/config.js';
 import { securityHeaders, errorHandler } from './src/security.js';
+import { aplicarSeVazio } from './src/repo/escalaFoto.js';
 import * as S from './src/repo/solicitacoes.js';
 import authRoutes from './src/routes/auth.js';
 import bossRoutes from './src/routes/boss.js';
@@ -13,6 +14,10 @@ import funcRoutes from './src/routes/func.js';
 const PROD = process.env.NODE_ENV === 'production';
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const db = openDb(DB_PATH);
+
+// 1ª vez (quadro vazio): pré-carrega o rascunho da escala extraído das fotos. Nunca sobrescreve.
+const _seed = aplicarSeVazio(db);
+if (_seed) console.log(`[escala-foto] quadro estava vazio → ${_seed.nQuadro + _seed.nDia} células pré-carregadas (rascunho).`);
 
 const app = express();
 app.set('view engine', 'ejs');
